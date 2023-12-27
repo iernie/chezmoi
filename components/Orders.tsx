@@ -3,6 +3,7 @@
 import { Tables } from "@/database.types";
 import styles from "./Orders.module.css";
 import { finishOrder } from "@/app/actions";
+import { QueryData } from "@supabase/supabase-js";
 
 type IProps = {
   orders: Array<Tables<"orders"> & { products: Tables<"products"> }> | null;
