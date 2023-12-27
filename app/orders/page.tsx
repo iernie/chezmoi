@@ -5,6 +5,8 @@ import Orders from "@/components/Orders";
 import { QueryData } from "@supabase/supabase-js";
 import { Tables } from "@/database.types";
 
+export const runtime = "edge";
+
 export default async function Page() {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
