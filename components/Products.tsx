@@ -5,14 +5,16 @@ import styles from "./Products.module.css";
 import { addOrder, deleteProduct } from "@/app/actions";
 import { useState } from "react";
 import clsx from "clsx";
+import { User } from "@supabase/supabase-js";
 
 type IProps = {
   products: Array<Tables<"products">> | null;
   deleteProduct: typeof deleteProduct;
   addOrder: typeof addOrder;
+  user: User | null;
 };
 
-const Products = ({ products, deleteProduct, addOrder }: IProps) => {
+const Products = ({ products, deleteProduct, addOrder, user }: IProps) => {
   const [selected, setSelected] = useState<Tables<"products">>();
   return (
     <>
@@ -29,12 +31,14 @@ const Products = ({ products, deleteProduct, addOrder }: IProps) => {
               <p className={styles.description}>{product.description}</p>
             </section>
             <section>
-              <button
-                className={styles.delete}
-                onClick={() => deleteProduct(product.id)}
-              >
-                X
-              </button>
+              {user && (
+                <button
+                  className={styles.delete}
+                  onClick={() => deleteProduct(product.id)}
+                >
+                  X
+                </button>
+              )}
               <button
                 className={styles.add}
                 onClick={() =>
