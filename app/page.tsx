@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import Products from "../components/Products";
 import { addOrder, addProduct, deleteProduct } from "./actions";
+import Login from "@/components/Login";
 
 export const runtime = "edge";
 
@@ -12,6 +13,7 @@ export default async function Page() {
 
   return (
     <>
+      <Login />
       <Products
         products={products}
         deleteProduct={deleteProduct}

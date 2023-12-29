@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
+import Script from "next/script";
 import { useEffect } from "react";
 
 export const runtime = "edge";
@@ -15,10 +16,9 @@ const Login = () => {
       console.log(response);
       const supabase = createClient();
 
-      const { data, error } = await supabase.auth.signInWithIdToken({
+      await supabase.auth.signInWithIdToken({
         provider: "google",
         token: response.credential,
-        nonce: "NONCE", // must be the same one as provided in data-nonce (if any)
       });
     }
     globalThis.handleSignInWithGoogle = handleSignInWithGoogle;
@@ -26,24 +26,16 @@ const Login = () => {
 
   return (
     <>
+      <Script src="https://accounts.google.com/gsi/client" defer />
       <div
         id="g_id_onload"
         data-client_id="317966960400-25c9s3kttkstji6j0p5l9rir3j9h2cj4.apps.googleusercontent.com"
         data-context="signin"
         data-ux_mode="popup"
+        data-nonce=""
         data-callback="handleSignInWithGoogle"
         data-auto_select="true"
         data-itp_support="true"
-      ></div>
-
-      <div
-        className="g_id_signin"
-        data-type="standard"
-        data-shape="rectangular"
-        data-theme="outline"
-        data-text="signin_with"
-        data-size="large"
-        data-logo_alignment="left"
       ></div>
     </>
   );
