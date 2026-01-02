@@ -1,0 +1,47 @@
+.footer {
+  position: fixed;
+  bottom: -100px;
+  left: 0;
+  right: 0;
+  background-color: var(--white);
+  border-top: 1px solid var(--lightgrey);
+  height: 100px;
+  transition: all ease-in-out 0.3s;
+}
+
+.footer.visible {
+  bottom: 0;
+}
+
+.wrapper {
+  display: flex;
+  gap: 1rem;
+  width: min(90%, 500px);
+  margin: 0 auto;
+  padding: 1.25rem 0;
+}
+
+.button {
+  border: 0;
+  height: 48px;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-radius: 0.25rem;
+  background-color: var(--deeppurple);
+  color: var(--white);
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+
+  &:hover {
+    background-color: var(--purple);
+  }
+}
+
+.input {
+  border: 2px solid var(--lightgrey);
+  border-radius: 0.25rem;
+  background-color: var(--white);
+  color: var(--black);
+  padding: 8px;
+}

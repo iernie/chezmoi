@@ -1,11 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
-
 :root {
   --white: rgb(255 255 255);
   --black: rgb(0 0 0);
   --primary: rgb(51 15 63);
   --grey: rgb(86 86 86);
   --lightgrey: rgb(204, 204, 204);
+  --purple: rgb(117, 69, 251);
+  --deeppurple: #330f3f;
 }
 
 * {
@@ -16,8 +16,6 @@
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
   font-family: "Inter", sans-serif;
 }
 
@@ -32,7 +30,22 @@ a {
 }
 
 main {
-  min-height: 100vh;
   width: min(90%, 500px);
   margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+header {
+  background: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 16px;
+  height: 55px;
+  border-bottom: 1px solid var(--lightgrey);
+  position: sticky;
+  top: 0;
+  color: var(--deeppurple);
+  font-family: "DM Serif Display", serif;
+  font-size: 1.5rem;
 }

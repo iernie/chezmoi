@@ -1,0 +1,52 @@
+.product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 16px 0px;
+  padding: 16px;
+  border-radius: 4px;
+  background-color: var(--white);
+  border: 1px solid var(--lightgrey);
+}
+
+.wrapper {
+  flex: 1 0 auto;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.description {
+  font-weight: 400;
+  color: var(--grey);
+}
+
+.buttonwrapper {
+  display: flex;
+  gap: 1rem;
+  place-items: center;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--lightgrey);
+  border-radius: 20px;
+  background-color: var(--white);
+  color: var(--black);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.title {
+  margin-top: 2rem;
+  font-size: 1.5rem;
+}
