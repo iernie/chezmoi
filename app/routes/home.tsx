@@ -1,27 +1,50 @@
-import { useStateProvider } from "~/context";
+import { useStateProvider } from "../context";
 import type { Route } from "./+types/home";
 import styles from "./home.module.css";
 import { MinusIcon, PlusIcon } from "@navikt/aksel-icons";
 import React from "react";
+import { db } from "../firebase";
+import { redirect } from "react-router";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const product = [
-    {
-      id: 1,
-      title: "Margherita",
-      description: "Tomatsaus, Mozzarella, Basilikum",
-      category: "Pizza",
-    },
-    { id: 2, title: "Pistaccio", category: "Pizza" },
-    { id: 3, title: "Carbonara", category: "Pasta" },
-    { id: 4, title: "Al limone", category: "Pasta" },
-  ];
-  return product.reduce(
+  const productsRef = db.collection("products");
+
+  const snapshot = await productsRef.get();
+
+  const products = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      name: data.name,
+      description: data.description,
+      category: data.category,
+    };
+  });
+
+  return products.reduce(
     (acc, curr) => {
       return { ...acc, [curr.category]: [...(acc[curr.category] ?? []), curr] };
     },
-    {} as { [key: string]: Array<(typeof product)[0]> },
+    {} as { [key: string]: Array<(typeof products)[0]> },
   );
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const ordersRef = db.collection("orders");
+
+  const name = formData.get("name");
+  const products = formData.get("products");
+  (products?.toString() ?? "").split(",").forEach(async (product) => {
+    const id = crypto.randomUUID();
+    await ordersRef.doc(id).set({
+      id: id,
+      name: name,
+      product: product,
+    });
+  });
+
+  return redirect("/thanks");
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
@@ -38,7 +61,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 return (
                   <li key={product.id} className={styles.product}>
                     <div className={styles.wrapper}>
-                      <span>{product.title}</span>
+                      <span>{product.name}</span>
                       {product.description && (
                         <span className={styles.description}>
                           {product.description}
@@ -46,26 +69,26 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                       )}
                     </div>
                     <div className={styles.buttonwrapper}>
-                      {state.includes(product.id) && (
+                      {state.includes(product.name) && (
                         <button
                           className={styles.button}
                           onClick={() =>
                             setState((prev) =>
-                              prev.filter((p) => p !== product.id),
+                              prev.filter((p) => p !== product.name),
                             )
                           }
                         >
                           <MinusIcon fontSize="1.5rem" />
                         </button>
                       )}
-                      {state.includes(product.id) &&
-                        state.filter((p) => p === product.id).length}
+                      {state.includes(product.name) &&
+                        state.filter((p) => p === product.name).length}
 
                       <button
-                        disabled={state.includes(product.id)}
+                        disabled={state.includes(product.name)}
                         className={styles.button}
                         onClick={() =>
-                          setState((prev) => [...prev, product.id])
+                          setState((prev) => [...prev, product.name])
                         }
                       >
                         <PlusIcon fontSize="1.5rem" />

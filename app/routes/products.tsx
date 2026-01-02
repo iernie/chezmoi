@@ -1,83 +1,211 @@
-import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
+import { FloppydiskIcon, PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import type { Route } from "./+types/products";
 import styles from "./products.module.css";
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { db } from "../firebase";
+import { Form, useFetcher } from "react-router";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const product = [
-    {
-      id: 1,
-      name: "Martherita",
-      description: "Tomatsaus, Mozzarella, Basilikum",
-      category: "Pizza",
-    },
-    { id: 2, name: "Carbonara", category: "Pasta" },
-  ];
-  return product.reduce(
+  const productsRef = db.collection("products");
+
+  const snapshot = await productsRef.get();
+
+  const products = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      name: data.name,
+      description: data.description,
+      category: data.category,
+    };
+  });
+
+  return products.reduce(
     (acc, curr) => {
       return { ...acc, [curr.category]: [...(acc[curr.category] ?? []), curr] };
     },
-    {} as { [key: string]: Array<(typeof product)[0]> },
+    {} as { [key: string]: Array<(typeof products)[0]> },
+  );
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const productsRef = db.collection("products");
+
+  if (request.method === "POST") {
+    const id = crypto.randomUUID();
+    const category = formData.get("category");
+    await productsRef.doc(id).set({
+      id: id,
+      name: "",
+      description: "",
+      category: category,
+    });
+  }
+
+  if (request.method === "PATCH") {
+    const originalCategory = formData.get("originalCategory");
+    const category = formData.get("category");
+    if (!!originalCategory) {
+      await productsRef
+        .where("category", "==", originalCategory)
+        .get()
+        .then((snap) =>
+          snap.forEach((s) =>
+            s.ref.update({
+              category: category,
+            }),
+          ),
+        );
+    }
+
+    const id = formData.get("id");
+    if (!!id) {
+      const name = formData.get("name");
+      const description = formData.get("description");
+      await productsRef.doc(`${id}`).update({
+        name: name,
+        description: description,
+      });
+    }
+  }
+
+  if (request.method === "DELETE") {
+    const category = formData.get("category");
+    if (!!category) {
+      await productsRef
+        .where("category", "==", category)
+        .get()
+        .then((snap) => snap.forEach((s) => s.ref.delete()));
+    }
+
+    const id = formData.get("id");
+    if (!!id) {
+      await productsRef.doc(`${id}`).delete();
+    }
+  }
+
+  const snapshot = await productsRef.get();
+
+  const products = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      name: data.name,
+      description: data.description,
+      category: data.category,
+    };
+  });
+
+  return products.reduce(
+    (acc, curr) => {
+      return { ...acc, [curr.category]: [...(acc[curr.category] ?? []), curr] };
+    },
+    {} as { [key: string]: Array<(typeof products)[0]> },
   );
 }
 
 export default function Products({ loaderData }: Route.ComponentProps) {
   const categories = loaderData;
+
+  const fetcher = useFetcher();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      formRef.current?.reset();
+    }
+  }, [fetcher.state, fetcher.data]);
+
   return (
     <>
-      <h1 className={styles.title}>Products</h1>
+      <h1 className={styles.title}>Produkter</h1>
       {Object.entries(categories).map(([category, products]) => {
         return (
           <React.Fragment key={category}>
-            <div className={styles.category}>
+            <Form method="PATCH" className={styles.category}>
               <input
                 className={clsx(styles.title, styles.input)}
-                value={category}
+                defaultValue={category}
+                name="category"
               />
-              <button className={styles.button}>
+              <input
+                type="hidden"
+                defaultValue={category}
+                name="originalCategory"
+              />
+              <button type="submit" className={styles.button}>
+                <FloppydiskIcon fontSize="1.5rem" />
+              </button>
+              <button
+                type="submit"
+                formMethod="DELETE"
+                className={styles.button}
+              >
                 <TrashIcon fontSize="1.5rem" />
               </button>
-            </div>
+            </Form>
             <ul>
               {products.map((product) => {
                 return (
                   <li key={product.id} className={styles.product}>
-                    <div className={styles.wrapper}>
+                    <Form method="PATCH" className={styles.form}>
                       <input
-                        placeholder="Name..."
-                        className={styles.input}
-                        value={product.name}
+                        type="hidden"
+                        defaultValue={product.id}
+                        name="id"
                       />
-                      <textarea
-                        placeholder="Description..."
-                        className={styles.input}
-                        value={product.description}
-                      />
-                    </div>
-                    <button className={styles.button}>
-                      <TrashIcon fontSize="1.5rem" />
-                    </button>
+                      <div className={styles.wrapper}>
+                        <input
+                          placeholder="Navn..."
+                          className={styles.input}
+                          defaultValue={product.name}
+                          name="name"
+                        />
+                        <textarea
+                          placeholder="Beskrivelse..."
+                          className={styles.input}
+                          defaultValue={product.description}
+                          name="description"
+                        />
+                      </div>
+                      <button type="submit" className={styles.button}>
+                        <FloppydiskIcon fontSize="1.5rem" />
+                      </button>
+                      <button
+                        type="submit"
+                        formMethod="DELETE"
+                        className={styles.button}
+                      >
+                        <TrashIcon fontSize="1.5rem" />
+                      </button>
+                    </Form>
                   </li>
                 );
               })}
-              <button className={styles.button}>
-                <PlusIcon fontSize="1.5rem" />
-              </button>
+              <Form method="POST">
+                <button type="submit" className={styles.button}>
+                  <PlusIcon fontSize="1.5rem" />
+                </button>
+                <input type="hidden" defaultValue={category} name="category" />
+              </Form>
             </ul>
           </React.Fragment>
         );
       })}
-      <div className={styles.category}>
+
+      <fetcher.Form method="POST" className={styles.category} ref={formRef}>
         <input
-          placeholder="New category..."
+          placeholder="Kategorinavn..."
           className={clsx(styles.title, styles.input)}
-          value={""}
+          type="text"
+          name="category"
         />
-        <button className={styles.button}>
+        <button className={styles.button} type="submit">
           <PlusIcon fontSize="1.5rem" />
         </button>
-      </div>
+      </fetcher.Form>
     </>
   );
 }

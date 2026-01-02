@@ -1,13 +1,17 @@
 .order {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
+  list-style: none;
   margin: 16px 0px;
   padding: 16px;
   border-radius: 4px;
   background-color: var(--white);
   border: 1px solid var(--lightgrey);
+}
+
+.form {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .wrapper {

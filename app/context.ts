@@ -6,7 +6,7 @@ import {
 } from "react";
 
 export var Context = createContext<
-  [number[], Dispatch<SetStateAction<number[]>>]
+  [string[], Dispatch<SetStateAction<string[]>>]
 >([[], () => null]);
 
 export const useStateProvider = () => useContext(Context);
