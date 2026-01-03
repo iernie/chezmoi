@@ -15,7 +15,7 @@
 }
 
 .wrapper {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex;
   gap: 0.5rem;
   flex-direction: column;

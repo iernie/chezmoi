@@ -11,7 +11,7 @@
 }
 
 .wrapper {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex;
   gap: 1rem;
   flex-direction: column;
@@ -27,6 +27,8 @@
   display: flex;
   gap: 1rem;
   place-items: center;
+  flex-basis: 130px;
+  justify-content: flex-end;
 }
 
 .button {
